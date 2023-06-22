@@ -1,0 +1,1110 @@
+{% schema %}
+{
+  "name": "newchatBot",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "label": "Name",
+      "id": "name",
+      "default": "Your Name",
+      "info": "Enter your name"
+    }
+  ]
+}
+{% endschema %}
+
+ 
+<head>
+    <meta charset="utf-8">
+    <title>Shopify Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts Link For Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
+</head>
+
+  <button class="chatbot-toggler">
+  <span class="material-symbols-rounded">mode_comment</span>
+  <span class="material-symbols-outlined">close</span>
+</button>
+<div class="chatbot">
+  <header>
+    <h2>Chatbot</h2>
+    <span class="close-btn material-symbols-outlined">close</span>
+  </header>
+  <ul class="chatbox">
+    <li class="chat incoming">
+      <span class="material-symbols-outlined">smart_toy</span>
+      <p>Hello, how can I help you?</p>
+    </li>
+  </ul>
+
+
+
+  <div class="chat-input">
+    <input type="text" placeholder="Type your message..." />
+    <span id="send-btn" class="material-symbols-rounded">send</span>
+  </div>
+</div>
+
+<style>
+  
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+
+body {
+  background: #E3F2FD;
+}
+.chatbot-toggler {
+  position: fixed;
+  bottom: 30px;
+  right: 35px;
+  outline: none;
+  border: none;
+  height: 50px;
+  width: 50px;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #724ae8;
+  transition: all 0.2s ease;
+
+  z-index: 99999;
+}
+body.show-chatbot .chatbot-toggler {
+  
+  transform: rotate(90deg);
+}
+.chatbot-toggler span {
+  color: #fff;
+  position: absolute;
+}
+.chatbot-toggler span:last-child,
+body.show-chatbot .chatbot-toggler span:first-child  {
+  opacity: 0;
+}
+body.show-chatbot .chatbot-toggler span:last-child {
+  opacity: 1;
+}
+.chatbot {
+  position: fixed;
+  right: 35px;
+  bottom: 90px;
+  width: 420px;
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: auto;
+  transform: scale(0.5);
+  transform-origin: bottom right;
+  box-shadow: 0 0 128px 0 rgba(0,0,0,0.1),
+              0 32px 64px -48px rgba(0,0,0,0.5);
+  transition: all 0.1s ease;
+
+  z-index: 99999999;
+}
+body.show-chatbot .chatbot {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+.chatbot header {
+  padding: 16px 0;
+  position: relative;
+  text-align: center;
+  color: #fff;
+  background: #724ae8;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.chatbot header span {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  display: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+header h2 {
+  font-size: 1.4rem;
+  color: white;
+}
+header h3 {
+  font-size: 1.4rem;
+  color: white;
+}
+.chatbot .chatbox {
+  overflow-y: auto;
+  height: 510px;
+  padding: 30px 20px 100px;
+}
+.chatbot :where(.chatbox, input[type="text"])::-webkit-scrollbar {
+  width: 6px;
+}
+.chatbot :where(.chatbox, input[type="text"])::-webkit-scrollbar-track {
+  background: #fff;
+  border-radius: 25px;
+}
+.chatbot :where(.chatbox, input[type="text"])::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 25px;
+}
+.chatbox .chat {
+  display: flex;
+  list-style: none;
+}
+.chatbox .outgoing {
+  margin: 20px 0;
+  justify-content: flex-end;
+}
+.chatbox .incoming span {
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  cursor: default;
+  text-align: center;
+  line-height: 32px;
+  align-self: flex-end;
+  background: #724ae8;
+  border-radius: 4px;
+  margin: 0 10px 7px 0;
+}
+.chatbox .chat p {
+  white-space: pre-wrap;
+  padding: 12px 16px;
+  border-radius: 10px 10px 0 10px;
+  max-width: 75%;
+  color: #fff;
+  font-size: 0.95rem;
+  background: #724ae8;
+}
+.chatbox .incoming p {
+  border-radius: 10px 10px 10px 0;
+}
+.chatbox .chat p.error {
+  color: #721c24;
+  background: #f8d7da;
+}
+.chatbox .incoming p {
+  color: #000;
+  background: #f2f2f2;
+}
+.chatbot .chat-input {
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  padding: 3px 20px;
+  border-top: 1px solid #ddd;
+}
+.chat-input input[type="text"] {
+  height: 55px;
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  max-height: 180px;
+  padding: 15px 15px 15px 0;
+  font-size: 0.95rem;
+}
+.chat-input span {
+  align-self: flex-end;
+  color: #724ae8;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  visibility: hidden;
+  font-size: 1.35rem;
+}
+
+@media (max-width: 490px) {
+  .chatbot-toggler {
+    right: 20px;
+    bottom: 20px;
+  }
+  .chatbot {
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-radius: 0;
+    width: 100%;
+  }
+  .chatbot .chatbox {
+    height: 90%;
+    padding: 25px 15px 100px;
+  }
+  .chatbot .chat-input {
+    padding: 5px 15px;
+  }
+  .chatbot header span {
+    display: block;
+  }
+}
+
+
+
+/* next button and back button that are displayed with resposne messages */
+button.back-button,
+button.next-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background-color: #f2f2f2;
+  color: #333;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button.back-button:hover,
+button.next-button:hover {
+  background-color: #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button.back-button {
+  margin-right: 8px;
+}
+
+button.next-button {
+  margin-left: 8px;
+}
+
+
+.pill-buttons {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center; /* Center-align the buttons horizontally */
+}
+
+.pill-button-line {
+  display: flex;
+  align-items: center; /* Center-align the buttons vertically */
+  flex-wrap: wrap; /* Allow buttons to wrap to the next line */
+}
+
+.pill-button {
+  background-color: hwb(0 100% 0%);
+  color: hwb(255 29% 9%);
+  border: 1px solid hwb(255 29% 9%); /* Add border style */
+  border-radius: 20px;
+  padding: 8px 15px;
+  margin-right: 10px;
+  margin-bottom: 10px; /* Add margin at the bottom to create a vertical gap */
+  cursor: pointer;
+}
+
+.pill-button:hover {
+  background-color: hwb(255 29% 9%);
+  color: white;
+}
+
+.pill-button:focus {
+  outline: none;
+}
+
+.slim-button {
+  width: 30px; /* Adjust the width as needed */
+  height: 100%; /* Set the height to 100% to match the message height */
+  writing-mode: vertical-lr; /* Rotate the text vertically */
+  border-radius: 0 20% 20% 0; /* Apply roundness to the right side */
+  background-color: #724ae8; /* Set the background color to purple */
+  color: white; /* Set the text color to white */
+  display: flex; /* Use flexbox */
+  justify-content: center; /* Center the text vertically */
+}
+
+
+
+/*Displaying the products */
+
+.product-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+.product-details {
+  text-align: center;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.product-details h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+  {% comment %} margin-bottom: 5px; {% endcomment %}
+}
+
+.product-details h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #777;
+  {% comment %} margin-bottom: 5px; {% endcomment %}
+}
+
+.product-details a {
+  display: block;
+  color: blue;
+  text-decoration: none;
+  font-size: 14px;
+  {% comment %} margin-bottom: 5px; {% endcomment %}
+}
+
+.product-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  {% comment %} margin-top: 10px; {% endcomment %}
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.product-image img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+}
+
+.chat-info {
+  justify-content=left
+  text-align: left;
+  font-style: italic;
+  color: #777;
+  font-size: 12px;
+  {% comment %} margin-top: 10px; {% endcomment %}
+}
+
+</style>
+<script>
+
+
+const initialPrompt = "Reply with only hello nothing else";
+const firstTimeMessage = 0;
+
+const chatbotToggler = document.querySelector(".chatbot-toggler");
+const closeBtn = document.querySelector(".close-btn");
+const chatbox = document.querySelector(".chatbox");
+const chatInput = document.querySelector(".chat-input input[type='text']");
+const sendChatBtn = document.getElementById("send-btn");
+
+userMessage = "reply only with the given format noting else, Classify chat   in intents below and return me Only number and entity name  no text. GetAllProduct()   //A function to retrive all Products and Send Back Url of Catalog to User return 1. GetSpecificProduct()  //A function to Check for a specific product and Return the products with its specs if it exist, run this even when user asks to buy, see, view etc return 2 and enity name that is the full product name. anythingELse()  // when the user asks for anything that can not be classified into above functions, return 3. When User asks to see/buy/view the most expensive product, return 4. When User asks to see/buy/view the least expensive product, return 5. When User asks to see/buy/view the products on sale, return 6.  only reply with format such as 1, N/A   ,   2, entity  , 3, N/A   ,  4, N/A"; 
+
+tempUserMessage = "reply only with the given format noting else, Classify chat   in intents below and return me Only number and entity name  no text. GetAllProduct()   //A function to retrive all Products and Send Back Url of Catalog to User return 1. GetSpecificProduct()  //A function to Check for a specific product and Return the products with its specs if it exist, run this even when user asks to buy, see, view etc return 2 and enity name that is the full product name. anythingELse()  // when the user asks for anything that can not be classified into above functions, return 3. When User asks to see/buy/view the most expensive product, return 4. When User asks to see/buy/view the least expensive product, return 5. When User asks to see/buy/view the products on sale, return 6.  only reply with format such as 1, N/A   ,   2, entity  , 3, N/A   ,  4, N/A";
+
+chatMessage= null;
+
+const inputInitHeight = chatInput.scrollHeight;
+
+const createChatLi = (message, className) => {
+    // Create a chat <li> element with passed message and className
+    const chatLi = document.createElement("li");
+    chatLi.classList.add("chat", `${className}`);
+    let chatContent = className === "outgoing" ? `<p></p>` : `<span class="material-symbols-outlined">smart_toy</span><p></p>`;
+    chatLi.innerHTML = chatContent;
+    chatLi.querySelector("p").textContent = message;
+    return chatLi; // return chat <li> element
+}
+
+const generateResponse = (chatElement) => {
+  
+  const API_KEY = "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"; 
+  const API_URL = "https://api.openai.com/v1/chat/completions";
+  const messageElement = chatElement.querySelector("p");
+
+  // Define the properties and message for the API request
+  const requestOptions = {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [{role: "user", content: userMessage}],
+          temperature: 0
+      })
+  }
+
+  // Send POST request to API, get response and set the reponse as paragraph text
+  fetch(API_URL, requestOptions).then(res => res.json()).then(data => {
+
+      choice = Number(data.choices[0].message.content.trim()[0]);
+      if (choice == 1) {
+        const shopUrl = "{{ shop.url }}"; // Get the shop URL
+        const productsUrl = shopUrl + "{{ collections.all.url }}";
+      
+        const message = `Unfortunately, it's not possible to show all our products here. However, you can browse our complete product catalog by visiting our online shop. Please find the catalog at the following URL. Happy shopping!`;
+      
+        // Update the message element with the text content
+        messageElement.textContent = message;
+      
+        // Create the button element
+        const buttonElement = document.createElement('button');
+        buttonElement.textContent = 'See all products';
+        buttonElement.classList.add('slim-button'); // Add the 'slim-button' class
+      
+        // Get the computed height of the message element
+        const messageHeight = window.getComputedStyle(messageElement).getPropertyValue('height');
+      
+        // Apply the computed height to the button element
+        buttonElement.style.height = messageHeight;
+      
+        // Add an event listener to the button
+        buttonElement.addEventListener('click', () => {
+          // Perform an action when the button is clicked
+          // For example, redirecting to the product catalog URL
+          window.location.href = productsUrl;
+        });
+      
+        // Insert the button element as a sibling immediately after the message element
+        messageElement.insertAdjacentElement('afterend', buttonElement);
+      }
+      
+      
+      else if (choice==2){
+        console.log(data.choices[0].message.content.trim());
+        {% comment %} console.log("hello I am 2"); {% endcomment %}
+        const productName = data.choices[0].message.content.trim().substring(data.choices[0].message.content.trim().indexOf(", ") + 2);  
+        {% comment %} console.log(productName);  {% endcomment %}
+        {% comment %} messageElement.textContent = data.choices[0].message.content.trim();        {% endcomment %}
+        sepecificProduct(chatElement,productName);
+        {% comment %} messageElement.textContent = data.choices[0].message.content.trim(); {% endcomment %}
+      
+      }
+      else if (choice==3){
+        console.log("hello I am 3");
+        const requestOptions = {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${API_KEY}`
+              },
+              body: JSON.stringify({
+                  model: "gpt-3.5-turbo",
+                  messages: [{role: "user", content: chatMessage}],
+              })
+          }
+        
+      // Send POST request to API, get response and set the reponse as paragraph text
+          fetch(API_URL, requestOptions).then(res => res.json()).then(data => {
+            messageElement.textContent =data.choices[0].message.content.trim();
+
+
+            }).catch(() => {
+              messageElement.classList.add("error");
+              messageElement.textContent = "Oops! Something went wrong. Please try again.";
+          }).finally(() => chatbox.scrollTo(0, chatbox.scrollHeight));
+
+      }
+      else if (choice==4){
+        console.log(data.choices[0].message.content.trim());
+        getMostExpProduct(chatElement);
+      }
+      else if (choice==5){
+        console.log(data.choices[0].message.content.trim());
+        getLeastExpProduct(chatElement);
+      }
+      else if (choice==6){
+        console.log(data.choices[0].message.content.trim());
+        getProductsOnSale(chatElement);
+      }
+      {% comment %} messageElement.textContent = data.choices[0].message.content.trim(); {% endcomment %}
+      
+
+  }).catch(() => {
+      messageElement.classList.add("error");
+      messageElement.textContent = "Oops! Something went wrong. Please try again.";
+  }).finally(() => chatbox.scrollTo(0, chatbox.scrollHeight));
+}
+
+
+
+const handleChat = () => {
+  chatMessage = chatInput.value.trim(); // Get user entered message and remove extra whitespace
+  
+  userMessage = tempUserMessage+ " classify this sentence: "+ chatMessage;
+  
+  if (!chatMessage) return;
+
+  // Clear the input textarea and set its height to default
+  chatInput.value = "";
+  chatInput.style.height = `${inputInitHeight}px`;
+
+  // Append the user's message to the chatbox
+  chatbox.appendChild(createChatLi(chatMessage, "outgoing"));
+  chatbox.scrollTo(0, chatbox.scrollHeight);
+
+  setTimeout(() => {
+      // Display "Thinking..." message while waiting for the response
+      const incomingChatLi = createChatLi("Thinking...", "incoming");
+      chatbox.appendChild(incomingChatLi);
+      chatbox.scrollTo(0, chatbox.scrollHeight);
+      generateResponse(incomingChatLi);
+
+      createIndependentPillButtons();
+  }, 600);
+}
+
+
+const sepecificProduct = (chatElement, productName) => {
+  const messageElement = chatElement.querySelector("p");
+  
+  const products = []; // Array to store the matching products
+
+  const shopUrl = "{{ shop.url }}"; // Get the shop URL
+  const shopCurrency = "{{ shop.currency }}";
+
+  // Iterate through each collection and its products
+  {% for collection in collections %}
+    {% for product in collection.products %}
+      if ("{{ product.title }}".toLowerCase().includes(productName.toLowerCase())) {
+        const productUrl = "{{ product.url }}";
+        const imgUrl = "{{ product.featured_image.src | img_url: 'master' }}"; // Get the image URL of the product
+  
+        // Check if the product already exists in the products list
+        const existingProduct = products.find(item => item.name.toLowerCase() === "{{ product.title }}".toLowerCase());
+        if (!existingProduct) {
+          products.push({
+            name: "{{ product.title }}",
+            {% comment %} description: "{{ product.description }}", {% endcomment %}
+            price: "{{ product.price }}",
+            image: imgUrl,
+            url: shopUrl + productUrl
+          });
+        }
+      }
+    {% endfor %}
+  {% endfor %}
+
+  if (products.length > 0) {
+    let currentIndex = 0;
+    let currentProduct = products[currentIndex];
+
+    const displayProduct = () => {
+      const message = `
+        <h2>${currentProduct.name}</h2><br>
+        <h3><u>Price of the product:</u> ${shopCurrency} ${(currentProduct.price / 100).toFixed(2)}</h3><br>
+        <img src="${currentProduct.image}" alt="${currentProduct.name}" width="200" height="200"><br> 
+        {% comment %} <b><u>Description of the product:</u></b><br>${currentProduct.description}<br> {% endcomment %}
+        <b><u>Product URL:</u></b><br><a href="${currentProduct.url}">${currentProduct.url}</a><br>
+        <br>
+      `;
+      messageElement.innerHTML = message;
+    
+      // Scroll to the start of the last previous message
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    console.log("Hello here");
+
+    let backButton;
+    let nextButton;
+
+    const toggleButtonsVisibility = () => {
+      if (backButton) {
+        backButton.style.display = currentIndex > 0 ? "inline-block" : "none";
+      }
+      if (nextButton) {
+        nextButton.style.display = currentIndex < products.length - 1 ? "inline-block" : "none";
+      }
+    };
+
+    const showNextProduct = () => {
+      if (currentIndex < products.length - 1) {
+        currentIndex++;
+        currentProduct = products[currentIndex];
+        displayProduct();
+        toggleButtonsVisibility();
+      }
+    };
+
+    const showPreviousProduct = () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        currentProduct = products[currentIndex];
+        displayProduct();
+        toggleButtonsVisibility();
+      }
+    };
+
+    if (products.length > 0) {
+      displayProduct();
+
+      backButton = document.createElement("button");
+      backButton.textContent = "Back";
+      backButton.classList.add("back-button");
+      backButton.style.display = currentIndex > 0 ? "inline-block" : "none";
+      backButton.addEventListener("click", showPreviousProduct);
+
+      const avatarElement = chatElement.querySelector(".material-symbols-outlined");
+      chatElement.insertBefore(backButton, avatarElement.nextSibling);
+
+      nextButton = document.createElement("button");
+      nextButton.textContent = "Next";
+      nextButton.classList.add("next-button");
+      nextButton.style.display = currentIndex < products.length - 1 ? "inline-block" : "none";
+      nextButton.addEventListener("click", showNextProduct);
+
+      chatElement.appendChild(nextButton);
+    }else{
+      messageElement.innerHTML = "No products found.";
+    }
+  }else{
+    messageElement.innerHTML = "No products found.";
+  }
+};
+
+//================================================================================================
+//================================================================================================
+const createIndependentPillButtons = () => {
+  const pillButtons = ["Most Expensive Product","Best Selling Product","Least Expensive Product","Products on Sale"];
+  const verticalPadding = 2; // Adjust the vertical padding between the buttons
+  
+  const buttonContainer = document.createElement("div");
+  buttonContainer.classList.add("pill-buttons");
+  chatbox.appendChild(buttonContainer);
+  
+  let currentLineContainer = document.createElement("div");
+  currentLineContainer.classList.add("pill-button-line");
+  buttonContainer.appendChild(currentLineContainer);
+  
+  pillButtons.forEach((buttonText) => {
+    const pillButton = document.createElement("button");
+    pillButton.classList.add("pill-button");
+    pillButton.textContent = buttonText;
+    
+    pillButton.addEventListener("click", () => {
+      // Handle the click event here
+      pillButtonClick(buttonText);
+      console.log(`Button "${buttonText}" clicked`);
+    });
+
+    // Check if the current button fits in the line
+    if (
+      currentLineContainer.offsetWidth + pillButton.offsetWidth <=
+      buttonContainer.offsetWidth
+    ) {
+      currentLineContainer.appendChild(pillButton);
+    } else {
+      // Move the current line container to a new line
+      currentLineContainer = document.createElement("div");
+      currentLineContainer.classList.add("pill-button-line");
+      buttonContainer.appendChild(currentLineContainer);
+      currentLineContainer.appendChild(pillButton);
+    }
+  
+    // Add vertical padding between the buttons
+    const verticalSpacer = document.createElement("div");
+    verticalSpacer.style.height = `${verticalPadding}px`;
+    currentLineContainer.appendChild(verticalSpacer);
+  });
+};
+//================================================================================================
+//================================================================================================
+
+const pillButtonClick = (pillMessage) => {
+  console.log(pillMessage);
+
+  // Clear the input textarea and set its height to default
+  chatInput.value = "";
+  chatInput.style.height = `${inputInitHeight}px`;
+
+  // Append the user's message to the chatbox
+  chatbox.appendChild(createChatLi(pillMessage, "outgoing"));
+  chatbox.scrollTo(0, chatbox.scrollHeight);
+  
+  setTimeout(() => {
+      // Display "Thinking..." message while waiting for the response
+      const incomingChatLi = createChatLi("Thinking...", "incoming");
+      chatbox.appendChild(incomingChatLi);
+      chatbox.scrollTo(0, chatbox.scrollHeight);
+      if (pillMessage=="Most Expensive Product"){
+        getMostExpProduct(incomingChatLi);
+      }
+      else if (pillMessage=="Least Expensive Product"){
+        getLeastExpProduct(incomingChatLi);
+      }
+      else if (pillMessage=="Products on Sale"){
+        getProductsOnSale(incomingChatLi);
+      }
+      else if (pillMessage=="Best Selling Product"){
+        getBestSellingProduct(incomingChatLi);
+      }
+      createIndependentPillButtons();
+  }, 600);
+}
+//=====================================================
+//===========Get maximum price product ===============
+const getMostExpProduct = (chatElement) => {
+  const messageElement = chatElement.querySelector("p");
+  const shopUrl = "{{ shop.url }}"; // Get the shop URL
+  let maxPrice = 0; // Variable to store the maximum price
+  let maxPriceProduct = null; // Variable to store the most expensive product
+
+  {% for collection in collections %}
+    {% for product in collection.products %}
+      {% comment %} console.log({{ product.price }}); {% endcomment %}
+      if (parseFloat({{ product.price}}) > maxPrice) {
+        console.log({{ product.price }});
+      
+        maxPrice = {{ product.price}}; // Update the maximum price
+        maxPriceProduct = {
+          name: "{{ product.title }}",
+          {% comment %} description: {{ product.description }}, {% endcomment %}
+          price: "{{ product.price }}",
+          image: "{{ product.featured_image.src | img_url: 'master' }}",
+          url: shopUrl + "{{ product.url }}"
+        };
+      }
+    {% endfor %}
+  {% endfor %}
+
+  if (maxPriceProduct) {
+    const displayProduct = () => {
+    const message = `
+          <div class="product-container">
+              <div class="product-details">
+                  <h3>Most Expensive Product:</h3>
+                  <h2>${maxPriceProduct.name}</h2>
+                  <h3>Price: ${(maxPriceProduct.price / 100).toFixed(2)}</h3>
+                  <a href="${maxPriceProduct.url}" class="product-url">Product Link</a>
+                  <div class="product-image">
+                    <img src="${maxPriceProduct.image}" alt="${maxPriceProduct.name}" width="200" height="200">
+                  </div>
+                  <div class="chat-info" style="text-align: left; font-style: italic; color: #777; font-size: 12px;">This product is the most expensive product, very good product, extremely good product, buy it, buy it now.
+                  </div>
+              </div>  
+          </div>
+      `;
+
+      messageElement.innerHTML = message;
+
+      // Scroll to the start of the last previous message
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    displayProduct(); // Call the displayProduct function to show the product
+  } else {
+    messageElement.innerHTML = "No products found.";
+  }
+};
+
+
+
+
+//===========Get Minimum price product ===============
+const getLeastExpProduct = (chatElement) => {
+  console.log("here in get Least");
+
+  const messageElement = chatElement.querySelector("p");
+  const shopUrl = "{{ shop.url }}"; // Get the shop URL
+  let leastPrice = Infinity; // Variable to store the maximum price
+  let leastPriceProduct = null; // Variable to store the most expensive product
+
+  let currentPrice; // Declare the currentPrice variable outside the loop
+
+  {% for collection in collections %}
+    {% for product in collection.products %}
+      currentPrice = parseFloat({{ product.price }}); // Update the value of currentPrice in each iteration
+
+      if (currentPrice < leastPrice) {
+        leastPrice = currentPrice; // Update the least price
+        leastPriceProduct = {
+          name: "{{ product.title }}",
+          {% comment %} description: "{{ product.description }}", {% endcomment %}
+          price: currentPrice, // Save the floating-point price value
+          image: "{{ product.featured_image.src | img_url: 'master' }}",
+          url: shopUrl + "{{ product.url }}"
+        };
+      }
+    {% endfor %}
+  {% endfor %}
+
+  if (leastPriceProduct) {
+    const displayProduct = () => {
+      const message = `
+        <h3>Least Expensive product is</h3>
+        <h2>${leastPriceProduct.name}</h2><br>
+        <h3><u>Price of the product:</u> ${(leastPriceProduct.price / 100).toFixed(2)}</h3><br>
+        <img src="${leastPriceProduct.image}" alt="${leastPriceProduct.name}" width="200" height="200"><br> 
+        {% comment %} <b><u>Description of the product:</u></b><br>${leastPriceProduct.description}<br> {% endcomment %}
+        <b><u>Product URL:</u></b><br><a href="${leastPriceProduct.url}" target="_blank">${leastPriceProduct.url}</a><br>
+        <br>
+        Information about the product from ChatGPT
+      `;
+      messageElement.innerHTML = message;
+
+      // Scroll to the start of the last previous message
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    displayProduct(); // Call the displayProduct function to show the product
+  } else {
+    messageElement.innerHTML = "No products found.";
+  }
+};
+
+
+const getBestSellingProduct = (chatElement) => {
+  const messageElement = chatElement.querySelector("p");
+  const shopUrl = "{{ shop.url }}"; // Get the shop URL
+  let maxQuantity = 0; // Variable to store the maximum sales quantity
+  let bestSellingProduct = null; // Variable to store the best selling product
+  let salesQuantity;
+  {% for collection in collections %}
+    {% for product in collection.products %}
+      salesQuantity = "{{ product.total_sales }}";
+      console.log(salesQuantity);
+      if (salesQuantity > maxQuantity) {
+        maxQuantity = salesQuantity;
+        bestSellingProduct = {
+          name: "{{ product.title }}",
+          {% comment %} description: "{{ product.description }}", {% endcomment %}
+          price: "{{ product.price }}",
+          image: "{{ product.featured_image.src | img_url: 'master' }}",
+          url: shopUrl + "{{ product.url }}"
+        };
+      }
+    {% endfor %}
+  {% endfor %}
+
+  if (bestSellingProduct) {
+    const displayProduct = () => {
+      const message = `
+        <h3>Best Selling product is</h3>
+        <h2>${bestSellingProduct.name}</h2><br>
+        <h3><u>Price of the product:</u> $${(bestSellingProduct.price / 100).toFixed(2)}</h3><br>
+        <img src="${bestSellingProduct.image}" alt="${bestSellingProduct.name}" width="200" height="200"><br> 
+        {% comment %} <b><u>Description of the product:</u></b><br>${bestSellingProduct.description}<br> {% endcomment %}
+        <b><u>Product URL:</u></b><br>
+        <a href="${bestSellingProduct.url}">${bestSellingProduct.url}</a><br>
+        <br>
+        Information about the product from ChatGPT
+      `;
+      messageElement.innerHTML = message;
+
+      // Scroll to the start of the last previous message
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    displayProduct(); // Call the displayProduct function to show the product
+  } else {
+    messageElement.innerHTML = "No sales have been made.";
+  }
+};
+
+
+const getProductsOnSale = (chatElement) => {
+  const messageElement = chatElement.querySelector("p");
+  const productsOnSale = []; // Array to store products on sale
+  const shopUrl = "{{ shop.url }}"; // Get the shop URL
+  let productUrl;
+  let imgUrl;
+  // Iterate through each collection and its products
+  {% for collection in collections %}
+    {% for product in collection.products %}
+      {% if product.compare_at_price and product.price < product.compare_at_price %}
+        productUrl = "{{ product.url }}";
+        imgUrl = "{{ product.featured_image.src | img_url: 'master' }}"; // Get the image URL of the product
+
+        productsOnSale.push({
+          name: "{{ product.title }}",
+          {% comment %} description: "{{ product.description }}", {% endcomment %}
+          price: {{ product.price }},
+          originalPrice : "{{ product.compare_at_price }}",
+          image: imgUrl,
+          url: shopUrl + productUrl
+        });
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+
+  if (productsOnSale.length > 0) {
+    let currentIndex = 0;
+    let currentProduct = productsOnSale[currentIndex];
+
+    const displayProduct = () => {
+      const message = `
+        <h2>${currentProduct.name}</h2><br>
+        <h3><u>Price of the product:</u> ${(currentProduct.price / 100).toFixed(2)}</h3><br>
+        <h3><u>Original Price of the product:</u> ${(currentProduct.originalPrice / 100).toFixed(2)}</h3><br>
+        <img src="${currentProduct.image}" alt="${currentProduct.name}" width="200" height="200"><br> 
+        {% comment %} <b><u>Description of the product:</u></b><br>${currentProduct.description}<br> {% endcomment %}
+        <b><u>Product URL:</u></b><br>
+        <a href="${currentProduct.url}" target="_blank">${currentProduct.url}</a><br>
+        <br>
+        Information about the product from ChatGPT
+      `;
+      messageElement.innerHTML = message;
+
+      // Scroll to the start of the last previous message
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    let backButton;
+    let nextButton;
+
+    const toggleButtonsVisibility = () => {
+      if (backButton) {
+        backButton.style.display = currentIndex > 0 ? "inline-block" : "none";
+      }
+      if (nextButton) {
+        nextButton.style.display = currentIndex < productsOnSale.length - 1 ? "inline-block" : "none";
+      }
+    };
+
+    const showNextProduct = () => {
+      if (currentIndex < productsOnSale.length - 1) {
+        currentIndex++;
+        currentProduct = productsOnSale[currentIndex];
+        displayProduct();
+        toggleButtonsVisibility();
+      }
+    };
+
+    const showPreviousProduct = () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        currentProduct = productsOnSale[currentIndex];
+        displayProduct();
+        toggleButtonsVisibility();
+      }
+    };
+
+    if (productsOnSale.length > 0) {
+      displayProduct();
+
+      backButton = document.createElement("button");
+      backButton.textContent = "Back";
+      backButton.classList.add("back-button");
+      backButton.style.display = currentIndex > 0 ? "inline-block" : "none";
+      backButton.addEventListener("click", showPreviousProduct);
+
+      const avatarElement = chatElement.querySelector(".material-symbols-outlined");
+      chatElement.insertBefore(backButton, avatarElement.nextSibling);
+
+      nextButton = document.createElement("button");
+      nextButton.textContent = "Next";
+      nextButton.classList.add("next-button");
+      nextButton.style.display = currentIndex < productsOnSale.length - 1 ? "inline-block" : "none";
+      nextButton.addEventListener("click", showNextProduct);
+
+      chatElement.appendChild(nextButton);
+    } else {
+      messageElement.innerHTML = "No products on sale.";
+    }
+  } else {
+    messageElement.innerHTML = "No products on sale.";
+  }
+};
+
+
+chatInput.addEventListener("input", () => {
+    // Adjust the height of the input textarea based on its content
+    chatInput.style.height = `${inputInitHeight}px`;
+    chatInput.style.height = `${chatInput.scrollHeight}px`;
+});
+
+chatInput.addEventListener("keydown", (e) => {
+    // If Enter key is pressed without Shift key and the window 
+    // width is greater than 800px, handle the chat
+    if(e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+        e.preventDefault();
+        handleChat();
+    }
+});
+
+sendChatBtn.addEventListener("click", handleChat);
+closeBtn.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
+
+chatbotToggler.addEventListener("click", () => {
+  document.body.classList.toggle("show-chatbot");
+});
+
+// Function to extract the page_info from the Link header
+function extract_next_page_info(headers) {
+  const link_header = headers.get('Link') || '';
+  const match = link_header.match(/<([^>]+)>;\s+rel="next"/);
+  if (match) {
+    const next_url = match[1];
+    const page_info = next_url.split('page_info=')[1];
+    return page_info;
+  }
+  return null;
+}
+
+// Function to fetch products from a given page
+function fetchProductsFromPage(pageURL) {
+  return fetch(pageURL)
+    .then(response => {
+      // Extract the page_info from the Link header
+      const page_info = extract_next_page_info(response.headers);
+      return { response, page_info };
+    })
+    .then(({ response, page_info }) => response.json().then(data => ({ data, page_info })))
+    .then(({ data, page_info }) => {
+      const products = data.products;
+      return { products, page_info };
+    });
+}
+
+// Global variable to store all products
+let allProducts = [];
+
+// Function to fetch all products from all pages
+function fetchAllProducts() {
+  function fetchNextPage(page_info) {
+    if (page_info) {
+      const nextPageURL = `/admin/api/2023-04/products.json?page_info=${page_info}`;
+      return fetchProductsFromPage(nextPageURL)
+        .then(({ products, page_info }) => {
+          allProducts.push(...products);
+          return fetchNextPage(page_info);
+        });
+    } else {
+      return allProducts;
+    }
+  }
+
+  // Initial API call to fetch the first page of products
+  return fetchProductsFromPage('/admin/api/2023-04/products.json')
+    .then(({ products, page_info }) => {
+      allProducts.push(...products);
+      return fetchNextPage(page_info);
+    });
+}
+
+// Call the function to fetch all products and save them in the global variable
+fetchAllProducts()
+  .then(() => {
+    console.log("Total Number of Products:", allProducts.length);
+    console.log("All Products:", allProducts);
+  })
+  .catch(error => {
+    console.error("Error fetching products:", error);
+  });
+
+  
+
+</script>
